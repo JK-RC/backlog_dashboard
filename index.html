@@ -3,274 +3,312 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Backlog Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Ticket Backlog · Rabot Energy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #222635;
-    --border: #2e3347;
-    --green: #00c97a;
-    --green-dim: rgba(0,201,122,0.12);
-    --amber: #f59e0b;
-    --amber-dim: rgba(245,158,11,0.12);
-    --blue: #60a5fa;
-    --text: #e8eaf0;
-    --muted: #6b7280;
-    --pill-open: #00c97a;
-    --pill-pending: #f59e0b;
+    --bg:        #141618;
+    --surface:   #1e2124;
+    --surface2:  #26292e;
+    --surface3:  #2e3238;
+    --border:    #33383f;
+    --border2:   #3d4349;
+    --ink:       #e8eaed;
+    --ink-soft:  #b0b6bf;
+    --muted:     #727a85;
+    --muted2:    #505860;
+    --open-bg:        #1e2124;
+    --open-border:    #4a5060;
+    --open-text:      #e8eaed;
+    --pending-bg:     #2a2d32;
+    --pending-text:   #8a909a;
+    --total-text:     #e8eaed;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: var(--bg);
-    color: var(--text);
+    color: var(--ink);
     min-height: 100vh;
   }
 
   /* ── TOP BAR ── */
   .topbar {
-    position: sticky; top:0; z-index:100;
-    background: rgba(15,17,23,0.92);
-    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(20,22,24,0.96);
+    backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
     padding: 14px 28px;
-    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
   }
-  .topbar-title {
-    font-size: 15px; font-weight: 600; letter-spacing: .03em;
-    color: #fff; flex-shrink:0;
+
+  .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .brand-title {
+    font-size: 14px; font-weight: 600; color: var(--ink);
+    letter-spacing: 0.03em;
   }
-  .topbar-title span { color: var(--green); }
+  .brand-divider { width: 1px; height: 16px; background: var(--border2); }
+  .brand-sub {
+    font-size: 11px; font-weight: 400; color: var(--muted);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
 
   .stats-row {
-    display: flex; gap:16px; flex-wrap:wrap; flex:1;
-    justify-content: flex-end;
+    display: flex; gap: 8px; flex-wrap: wrap; flex: 1;
+    justify-content: flex-end; align-items: center;
   }
   .stat-chip {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 5px 14px;
-    font-size: 12px; color: var(--muted);
-    display: flex; align-items: center; gap:6px;
+    border-radius: 5px;
+    padding: 4px 12px;
+    font-size: 11px; color: var(--muted);
+    display: flex; align-items: center; gap: 7px;
   }
-  .stat-chip strong { color: var(--text); font-size:14px; font-weight:600; }
+  .stat-chip strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 600; color: var(--ink);
+  }
 
   /* ── CONTROLS ── */
   .controls {
-    padding: 18px 28px 12px;
-    display: flex; align-items: center; gap:12px; flex-wrap:wrap;
+    padding: 12px 28px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
   }
-  .controls label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-
-  .filter-group { display:flex; gap:6px; }
+  .controls-label {
+    font-size: 10px; font-weight: 500; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0;
+  }
+  .filter-group { display: flex; gap: 3px; }
   .btn-filter {
-    padding: 6px 16px;
-    border-radius: 20px;
+    padding: 5px 14px;
+    border-radius: 4px;
     border: 1px solid var(--border);
     background: transparent;
     color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight:500;
-    cursor: pointer;
-    transition: all .15s;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all .15s;
   }
-  .btn-filter:hover { border-color: #555; color: var(--text); }
-  .btn-filter.active-all  { background: var(--surface2); border-color:#60a5fa; color:#60a5fa; }
-  .btn-filter.active-open { background: var(--green-dim); border-color:var(--green); color:var(--green); }
-  .btn-filter.active-pending { background: var(--amber-dim); border-color:var(--amber); color:var(--amber); }
+  .btn-filter:hover { background: var(--surface2); color: var(--ink-soft); }
+  .btn-filter.active-all     { background: var(--ink); border-color: var(--ink); color: #141618; }
+  .btn-filter.active-open    { background: var(--surface3); border-color: var(--ink-soft); color: var(--ink); }
+  .btn-filter.active-pending { background: var(--surface2); border-color: var(--muted); color: var(--ink-soft); }
 
-  .search-wrap { margin-left:auto; position:relative; }
+  .search-wrap { margin-left: auto; position: relative; }
   .search-wrap input {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 12px 7px 34px;
-    color: var(--text); font-family: 'DM Sans',sans-serif; font-size:13px;
-    width: 220px; outline:none;
-    transition: border-color .15s;
+    border-radius: 4px;
+    padding: 6px 12px 6px 28px;
+    color: var(--ink); font-family: 'Inter', sans-serif; font-size: 12px;
+    width: 200px; outline: none; transition: border-color .15s;
   }
-  .search-wrap input:focus { border-color: #60a5fa; }
-  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--border2); }
+  .search-wrap input::placeholder { color: var(--muted2); }
   .search-icon {
-    position:absolute; left:10px; top:50%; transform:translateY(-50%);
-    color:var(--muted); font-size:14px; pointer-events:none;
+    position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+    color: var(--muted2); font-size: 12px; pointer-events: none;
   }
 
-  /* ── SEGMENT FILTERS ── */
-  .seg-section {
-    padding: 0 28px 16px;
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  }
-  .seg-section-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; flex-shrink:0; }
-  .seg-filters { display:flex; gap:6px; flex-wrap:wrap; flex:1; }
-  .seg-tab {
-    padding: 6px 14px;
-    border-radius: 6px;
+  .upload-btn {
+    padding: 5px 12px; border-radius: 4px;
     border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-family: 'DM Sans',sans-serif;
-    font-size: 12px; font-weight:500;
+    background: transparent; color: var(--muted);
+    font-family: 'Inter', sans-serif; font-size: 12px;
     cursor: pointer; transition: all .15s;
     display: flex; align-items: center; gap: 5px;
   }
-  .seg-tab:hover { background: var(--surface2); color:var(--text); }
-  .seg-tab.active { border-color: var(--seg-color, #60a5fa); color:#fff; background: color-mix(in srgb, var(--seg-color, #60a5fa) 12%, transparent); }
-  .seg-tab .seg-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .seg-tab .seg-count {
-    display:inline-block;
-    background: var(--border); color:var(--muted);
-    border-radius:10px; padding:1px 7px; font-size:11px;
-  }
-  .seg-tab.active .seg-count { color: var(--seg-color, #60a5fa); background: color-mix(in srgb, var(--seg-color,#60a5fa) 15%, transparent); }
-  .btn-clear-segs {
-    padding: 5px 12px; border-radius:6px;
-    border: 1px dashed var(--border);
-    background: transparent; color: var(--muted);
-    font-family: 'DM Sans',sans-serif; font-size:11px;
-    cursor:pointer; transition: all .15s; flex-shrink:0;
-  }
-  .btn-clear-segs:hover { border-color:#555; color:var(--text); }
+  .upload-btn:hover { border-color: var(--border2); color: var(--ink-soft); background: var(--surface2); }
+  #fileInput { display: none; }
+  #downloadBtn { border-color: #2d6e4a; color: #4aaa7a; }
+  #downloadBtn:hover { background: rgba(45,110,74,0.15); }
 
-  /* ── UPLOAD ── */
-  .upload-btn {
-    padding: 5px 14px; border-radius:6px;
+  /* ── SEGMENTS ── */
+  .seg-section {
+    padding: 10px 28px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .seg-section-label {
+    font-size: 10px; font-weight: 500; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0;
+  }
+  .seg-filters { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .seg-tab {
+    padding: 4px 12px;
+    border-radius: 4px;
     border: 1px solid var(--border);
-    background: var(--surface2); color: var(--muted);
-    font-family: 'DM Sans',sans-serif; font-size:12px;
-    cursor:pointer; transition: all .15s; display:flex; align-items:center; gap:6px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 400;
+    cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; gap: 6px;
   }
-  .upload-btn:hover { border-color:#60a5fa; color:#60a5fa; }
-  #fileInput { display:none; }
-  .upload-toast {
-    position:fixed; bottom:24px; right:24px;
-    background: var(--surface2); border:1px solid var(--green);
-    border-radius:8px; padding:10px 18px;
-    font-size:13px; color:var(--green);
-    opacity:0; transition: opacity .3s; pointer-events:none; z-index:999;
+  .seg-tab:hover { color: var(--ink-soft); border-color: var(--border2); background: var(--surface2); }
+  .seg-tab.active {
+    border-color: var(--seg-color, #e8eaed);
+    color: var(--ink);
+    background: var(--surface2);
+    font-weight: 500;
+    box-shadow: inset 3px 0 0 var(--seg-color);
   }
-  .upload-toast.show { opacity:1; }
+  .seg-tab .seg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .seg-tab .seg-count { font-size: 10px; color: var(--muted2); }
+  .seg-tab.active .seg-count { color: var(--muted); }
+
+  .btn-clear-segs {
+    padding: 4px 10px; border-radius: 4px;
+    border: 1px dashed var(--border);
+    background: transparent; color: var(--muted2);
+    font-family: 'Inter', sans-serif; font-size: 11px;
+    cursor: pointer; transition: all .15s; flex-shrink: 0;
+  }
+  .btn-clear-segs:hover { border-color: var(--muted2); color: var(--muted); }
 
   /* ── GRID ── */
   .grid {
-    padding: 0 28px 40px;
+    padding: 20px 28px 48px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
   }
 
   /* ── SEGMENT CARD ── */
   .seg-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 7px;
     overflow: hidden;
     transition: border-color .2s;
   }
-  .seg-card:hover { border-color: #3e4563; }
+  .seg-card:hover { border-color: var(--border2); }
 
   .seg-card-header {
-    padding: 14px 18px 10px;
+    padding: 13px 16px 11px;
     border-bottom: 1px solid var(--border);
-    display: flex; justify-content:space-between; align-items:center;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-left: 3px solid var(--seg-color, var(--border2));
   }
   .seg-name {
-    font-size: 13px; font-weight:600; letter-spacing:.02em;
-    display:flex; align-items:center; gap:8px;
+    display: flex; align-items: center; gap: 8px;
   }
-  .seg-dot { width:8px;height:8px;border-radius:50%; flex-shrink:0; }
-  .seg-total {
-    font-family: 'DM Mono', monospace;
-    font-size: 20px; font-weight:500; color:#fff;
+  .seg-name-text {
+    font-size: 13px; font-weight: 600; color: var(--ink);
+    letter-spacing: 0.01em;
   }
-  .seg-sub { font-size:10px; color:var(--muted); text-align:right; margin-top:1px; }
+  .seg-numbers { text-align: right; }
+  .seg-total-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px; font-weight: 600; color: var(--ink); line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .seg-breakdown {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--muted); margin-top: 4px;
+    display: flex; gap: 8px; justify-content: flex-end;
+  }
 
   /* ── TOPIC ROWS ── */
-  .topic-list { padding: 8px 0; }
-
+  .topic-list { padding: 3px 0; }
   .topic-row {
-    padding: 6px 18px;
-    display: flex; justify-content:space-between; align-items:flex-start;
-    border-bottom: 1px solid rgba(46,51,71,0.5);
+    padding: 7px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(51,56,63,0.6);
     cursor: pointer; transition: background .1s;
   }
-  .topic-row:last-child { border-bottom:none; }
+  .topic-row:last-child { border-bottom: none; }
   .topic-row:hover { background: var(--surface2); }
-  .topic-row.expanded { background: rgba(96,165,250,0.04); }
+  .topic-row.expanded { background: var(--surface2); }
 
-  .topic-left { display:flex; flex-direction:column; gap:2px; min-width:0; }
-  .topic-name { font-size:12px; font-weight:500; color:var(--text); }
-  .topic-right { display:flex; align-items:center; gap:6px; flex-shrink:0; margin-left:8px; padding-top:2px; }
+  .topic-name { font-size: 12px; font-weight: 400; color: var(--ink-soft); }
+  .topic-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
+  /* Pills */
   .pill {
-    border-radius:10px; padding:2px 8px;
-    font-size:10px; font-weight:600; font-family:'DM Mono',monospace;
-    white-space:nowrap;
+    border-radius: 3px; padding: 2px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    white-space: nowrap;
   }
-  .pill-open    { background:var(--green-dim);  color:var(--green); }
-  .pill-pending { background:var(--amber-dim);  color:var(--amber); }
-  .pill-total   { background:var(--surface2);   color:var(--muted); border:1px solid var(--border); }
+  .pill-open    { background: var(--surface3); color: var(--ink);      border: 1px solid var(--border2); }
+  .pill-pending { background: var(--surface2); color: var(--muted);    border: 1px solid transparent; }
+  .pill-total   { background: transparent;     color: var(--ink);      font-weight: 700; font-size: 12px; border: none; padding-right: 0; }
 
-  .chevron { font-size:10px; color:var(--muted); transition:transform .15s; flex-shrink:0; }
-  .topic-row.expanded .chevron { transform:rotate(90deg); }
+  .chevron { font-size: 9px; color: var(--muted2); transition: transform .15s; flex-shrink: 0; margin-left: 3px; }
+  .topic-row.expanded .chevron { transform: rotate(90deg); }
 
   /* ── SUBTOPICS ── */
   .subtopic-list {
-    display:none; background: rgba(15,17,23,0.5);
+    display: none; background: #191c1f;
     border-top: 1px solid var(--border);
   }
-  .subtopic-list.open { display:block; }
-
+  .subtopic-list.open { display: block; }
   .subtopic-row {
-    padding: 5px 18px 5px 32px;
-    display:flex; justify-content:space-between; align-items:center;
-    border-bottom: 1px solid rgba(46,51,71,0.3);
-    font-size:11px;
+    padding: 5px 16px 5px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(51,56,63,0.4);
+    font-size: 11px;
   }
-  .subtopic-row:last-child { border-bottom:none; }
-  .subtopic-name { color:var(--muted); }
-  .subtopic-pills { display:flex; gap:4px; }
+  .subtopic-row:last-child { border-bottom: none; }
+  .subtopic-name { color: var(--muted); }
+  .subtopic-pills { display: flex; gap: 4px; align-items: center; }
 
   /* ── NO RESULTS ── */
   .no-results {
-    grid-column:1/-1;
-    text-align:center; padding:60px;
-    color:var(--muted); font-size:14px;
+    grid-column: 1/-1;
+    text-align: center; padding: 72px;
+    color: var(--muted2); font-size: 14px; font-style: italic;
   }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width:6px; height:6px; }
-  ::-webkit-scrollbar-track { background:transparent; }
-  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  /* ── TOAST ── */
+  .upload-toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid #2d6e4a;
+    border-radius: 6px; padding: 10px 18px;
+    font-size: 12px; color: #4aaa7a;
+    opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999;
+  }
+  .upload-toast.show { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-title">Ticket <span>Backlog</span> Dashboard</div>
+  <div class="brand">
+    <span class="brand-title">Ticket Backlog</span>
+    <div class="brand-divider"></div>
+    <span class="brand-sub">Rabot Energy</span>
+  </div>
   <div class="stats-row" id="statsRow"></div>
 </div>
 
 <div class="controls">
-  <label>Status</label>
+  <span class="controls-label">Status</span>
   <div class="filter-group">
-    <button class="btn-filter active-all" data-status="all"  onclick="setStatus('all',this)">All</button>
-    <button class="btn-filter" data-status="open"    onclick="setStatus('open',this)">Open</button>
+    <button class="btn-filter" data-status="all" onclick="setStatus('all',this)">All</button>
+    <button class="btn-filter active-open" data-status="open" onclick="setStatus('open',this)">Open</button>
     <button class="btn-filter" data-status="pending" onclick="setStatus('pending',this)">Pending</button>
   </div>
   <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Topic or subtopic…" oninput="render()">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="searchInput" placeholder="Search…" oninput="render()">
   </div>
-  <label class="upload-btn" title="Load a new JSON export">
+  <label class="upload-btn" title="Load new JSON export">
     ↑ Update JSON
     <input type="file" id="fileInput" accept=".json" onchange="loadJSON(event)">
   </label>
+  <button class="upload-btn" id="downloadBtn" onclick="downloadUpdatedHTML()" style="display:none;">
+    ↓ Download updated file
+  </button>
 </div>
 
 <div class="seg-section">
@@ -278,23 +316,26 @@
   <div class="seg-filters" id="segTabs"></div>
   <button class="btn-clear-segs" onclick="clearSegs()">Clear all</button>
 </div>
-<div id="uploadToast" class="upload-toast">✓ JSON loaded successfully</div>
+
+<div id="uploadToast" class="upload-toast">✓ Data updated</div>
 <div class="grid" id="grid"></div>
 
 <script>
 const RAW = [{"Segment":"Asset","status":"pending","topic":"Allgemein","subtopic":"Allgemein","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Allgemein","subtopic":"Allgemein","Counts":"21"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Allgemein","subtopic":"Allgemein","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Allgemein","subtopic":"Allgemein","Counts":"135"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"System-Workflows","subtopic":"DSGVO","Counts":"98"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"112"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"219"},{"Segment":"Basic","status":"open","topic":"Widerruf","subtopic":"Widerruf","Counts":"291"},{"Segment":"Business","status":"open","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"4"},{"Segment":"Basic","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"44"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Allgemein","Counts":"326"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"180"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Mahnkündigung","Counts":"44"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"39"},{"Segment":"Smart","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"6"},{"Segment":"Business","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"20"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"39"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"124"},{"Segment":"Asset","status":"open","topic":"Escalation","subtopic":"14a","Counts":"7"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"35"},{"Segment":"Asset","status":"open","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"40"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"26"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"42"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"10"},{"Segment":"Basic","status":"open","topic":"Aktionen","subtopic":"Aktionen","Counts":"3"},{"Segment":"Business","status":"pending","topic":"Allgemein","subtopic":"Allgemein","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"Allgemein","subtopic":"Allgemein","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Allgemein","subtopic":"Allgemein","Counts":"529"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"42"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"17"},{"Segment":"Basic","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"91"},{"Segment":"Asset","status":"open","topic":"Escalation","subtopic":"Escalation","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Escalation","subtopic":"Anwalt","Counts":"1"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"App","Counts":"3"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"DD","subtopic":"Aufleger","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"DD","subtopic":"DD","Counts":"7"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Escalation","subtopic":"Escalation","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"125"},{"Segment":"Basic","status":"open","topic":"System-Workflows","subtopic":"DSGVO","Counts":"97"},{"Segment":"Basic","status":"open","topic":"Beratung","subtopic":"Beratung","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"Beratungstermin Tarifwechsel","Counts":"13"},{"Segment":"Basic","status":"open","topic":"Escalation","subtopic":"Escalation","Counts":"6"},{"Segment":"Basic","status":"open","topic":"DD","subtopic":"DD","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"224"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"163"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"6"},{"Segment":"Basic","status":"pending","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"53"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"3"},{"Segment":"Basic","status":"pending","topic":"Escalation","subtopic":"Escalation","Counts":"3"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"22"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"4"},{"Segment":"Smart","status":"pending","topic":"Escalation","subtopic":"Escalation","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Escalation","subtopic":"Escalation","Counts":"2"},{"Segment":"Business","status":"open","topic":"Fwd: Invoice","subtopic":"Fwd: Invoice","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Fwd: Invoice","subtopic":"Fwd: Invoice","Counts":"6"},{"Segment":"Basic","status":"open","topic":"Kündigung","subtopic":"Kündigung","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"18"},{"Segment":"Basic","status":"pending","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"2"},{"Segment":"Asset","status":"pending","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"5"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"23"},{"Segment":"Basic","status":"open","topic":"Aktionen","subtopic":"Waterdrop","Counts":"84"},{"Segment":"Asset","status":"open","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"10"},{"Segment":"Asset","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"3"},{"Segment":"Smart","status":"open","topic":"System-Workflows","subtopic":"Jira Ticket","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Stromzähler","subtopic":"Stromzähler","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Konto nicht gedeckt","Counts":"32"},{"Segment":"Basic","status":"pending","topic":"Kündigung","subtopic":"Kündigung","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Kündigung","subtopic":"Kündigung","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"40"},{"Segment":"Asset","status":"pending","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"33"},{"Segment":"Basic","status":"open","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"407"},{"Segment":"Basic","status":"pending","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"83"},{"Segment":"Basic","status":"open","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"77"},{"Segment":"NoContract","status":"open","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"14"},{"Segment":"Business","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"16"},{"Segment":"NoContract","status":"open","topic":"App","subtopic":"Login Problem","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"57"},{"Segment":"Basic","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"14"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"7"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Mahnverfahren","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"61"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Allgemein","Counts":"219"},{"Segment":"Business","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"10"},{"Segment":"Basic","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnverfahren","Counts":"2"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"3"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"329"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Stromzähler","Counts":"5"},{"Segment":"Basic","status":"open","topic":"WL - Neo Energy","subtopic":"WL - Neo Energy","Counts":"61"},{"Segment":"Business","status":"open","topic":"Stromzähler","subtopic":"Zählerstilllegung","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Fwd: Invoice","subtopic":"Rechnungskorrektur","Counts":"12"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Sales","subtopic":"Sales","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"Sales","Counts":"4"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Allgemein","Counts":"225"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"6"},{"Segment":"Smart","status":"pending","topic":"Stromzähler","subtopic":"Allgemein","Counts":"15"},{"Segment":"Basic","status":"pending","topic":"Stromzähler","subtopic":"Allgemein","Counts":"19"},{"Segment":"Asset","status":"pending","topic":"Stromzähler","subtopic":"Allgemein","Counts":"20"},{"Segment":"Basic","status":"open","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"30"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Stromzähler","Counts":"2"},{"Segment":"NoContract","status":"pending","topic":"Datenänderung","subtopic":"Telefonnummer","Counts":"1"},{"Segment":"Business","status":"open","topic":"Umzug","subtopic":"Umzug","Counts":"7"},{"Segment":"Asset","status":"open","topic":"Umzug","subtopic":"Umzug","Counts":"5"},{"Segment":"Basic","status":"open","topic":"Umzug","subtopic":"Umzug","Counts":"138"},{"Segment":"Smart","status":"open","topic":"Umzug","subtopic":"Umzug","Counts":"4"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"7"},{"Segment":"Basic","status":"pending","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"5"},{"Segment":"NoContract","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"10"},{"Segment":"Basic","status":"pending","topic":"Widerruf","subtopic":"Widerruf","Counts":"8"},{"Segment":"Business","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"3"},{"Segment":"NoContract","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"4"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsänderung","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Status","subtopic":"pending_customer","Counts":"11"},{"Segment":"Smart","status":"open","topic":"Escalation","subtopic":"14a","Counts":"10"},{"Segment":"Basic","status":"pending","topic":"Stromzähler","subtopic":"Stromzähler","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"3"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"4"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"8"},{"Segment":"NoContract","status":"open","topic":"Widerruf","subtopic":"Widerruf","Counts":"57"},{"Segment":"Smart","status":"pending","topic":"Fwd: Invoice","subtopic":"Zahlungsaufschub","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Datenänderung","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"12"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Mahnverfahren","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"10"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"346"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"50"},{"Segment":"Smart","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"8"},{"Segment":"Asset","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"8"},{"Segment":"Basic","status":"pending","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"14"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"10"},{"Segment":"Basic","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"52"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"475"},{"Segment":"Business","status":"open","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"8"},{"Segment":"Asset","status":"pending","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"opt-DD","subtopic":"opt-DD","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Status","subtopic":"pending_customer","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"Status","subtopic":"pending_customer","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Status","subtopic":"pending_customer","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"WL - Neo Energy","subtopic":"WL - Neo Energy","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Status","subtopic":"Status","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Status","subtopic":"pending_internal ","Counts":"29"},{"Segment":"Smart","status":"pending","topic":"Status","subtopic":"pending_internal ","Counts":"6"},{"Segment":"Basic","status":"open","topic":"Status","subtopic":"pending_internal ","Counts":"23"},{"Segment":"Basic","status":"pending","topic":"Invoice","subtopic":"Invoice","Counts":"3"},{"Segment":"Basic","status":"pending","topic":"System-Workflows","subtopic":"Jira Ticket","Counts":"3"},{"Segment":"Basic","status":"open","topic":"System-Workflows","subtopic":"Jira Ticket","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Status","subtopic":"Status","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Status","subtopic":"Status","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Status","subtopic":"Status","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Umzug","subtopic":"Umzug","Counts":"28"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"6"},{"Segment":"Asset","status":"pending","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"4"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"9"},{"Segment":"Business","status":"pending","topic":"Rechnungsfragen","subtopic":"Abschlussrechnung","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"5"},{"Segment":"Basic","status":"pending","topic":"Aktionen","subtopic":"KWK","Counts":"4"},{"Segment":"Smart","status":"pending","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"4"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"8"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"52"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"28"},{"Segment":"Smart","status":"open","topic":"Allgemein","subtopic":"Allgemein","Counts":"89"},{"Segment":"Asset","status":"open","topic":"Allgemein","subtopic":"Allgemein","Counts":"61"},{"Segment":"Business","status":"open","topic":"Allgemein","subtopic":"Allgemein","Counts":"22"},{"Segment":"NoContract","status":"open","topic":"Allgemein","subtopic":"Allgemein","Counts":"76"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"18"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Aktionen","subtopic":"KWK","Counts":"145"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"App","subtopic":"Anleitung","Counts":"5"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"92"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"9"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"12"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"19"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"74"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Sonderrechnungen","Counts":"13"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Anpassung Abschlag","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Widerruf","subtopic":"Widerruf","Counts":"6"},{"Segment":"Business","status":"open","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"10"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Anpassung Zahlungsmodalitäten","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Anpassung Zahlungsmodalitäten","Counts":"48"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Anpassung Zahlungsmodalitäten","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Anpassung Zahlungsmodalitäten","Counts":"2"},{"Segment":"Asset","status":"open","topic":"App","subtopic":"Anleitung","Counts":"5"},{"Segment":"Smart","status":"open","topic":"App","subtopic":"Anleitung","Counts":"7"},{"Segment":"Asset","status":"open","topic":"Assets","subtopic":"Assets (allgemein)","Counts":"1"},{"Segment":"Asset","status":"open","topic":"KF","subtopic":"KF","Counts":"9"},{"Segment":"NoContract","status":"open","topic":"System-Workflows","subtopic":"Bundling","Counts":"3"},{"Segment":"Asset","status":"open","topic":"System-Workflows","subtopic":"DSGVO","Counts":"8"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Assets","subtopic":"Assets (allgemein)","Counts":"1"},{"Segment":"Asset","status":"open","topic":"System-Workflows","subtopic":"AutoAnswered","Counts":"13"},{"Segment":"Basic","status":"open","topic":"System-Workflows","subtopic":"AutoAnswered","Counts":"46"},{"Segment":"Business","status":"open","topic":"B2B User","subtopic":"B2B User","Counts":"1"},{"Segment":"Business","status":"open","topic":"System-Workflows","subtopic":"DSGVO","Counts":"15"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"BSH Geschirrspüler","Counts":"1"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Geräte-Konnektivität","Counts":"3"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"16"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"10"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"3"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"3"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"11"},{"Segment":"Smart","status":"pending","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"1"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Anleitung","Counts":"25"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"Assets (allgemein)","Counts":"1"},{"Segment":"Basic","status":"open","topic":"KF","subtopic":"KF","Counts":"158"},{"Segment":"NoContract","status":"open","topic":"System-Workflows","subtopic":"DSGVO","Counts":"7"},{"Segment":"NoContract","status":"open","topic":"KF","subtopic":"KF","Counts":"8"},{"Segment":"Basic","status":"open","topic":"Portal","subtopic":"PO - Anleitung","Counts":"26"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"KF","subtopic":"KF","Counts":"8"},{"Segment":"Basic","status":"open","topic":"Portal","subtopic":"PO - Technisches Problem","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Stromzähler","subtopic":"Allgemein","Counts":"7"},{"Segment":"Basic","status":"open","topic":"WL - Teleson","subtopic":"WL - Teleson","Counts":"4"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"Beratungstermin Tarifwechsel","Counts":"2"},{"Segment":"Business","status":"open","topic":"System-Workflows","subtopic":"Bundling","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Clearing","subtopic":"Clearing","Counts":"4"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Sales","subtopic":"CrossSell / Bundle (PV Wärmepumpe Wallbox)","Counts":"3"},{"Segment":"Asset","status":"open","topic":"Sales","subtopic":"CrossSell / Bundle (PV Wärmepumpe Wallbox)","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Stromzähler","subtopic":"Allgemein","Counts":"17"},{"Segment":"Smart","status":"open","topic":"KF","subtopic":"KF","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Portal","subtopic":"PO - Anleitung","Counts":"3"},{"Segment":"Asset","status":"pending","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"2"},{"Segment":"NoContract","status":"pending","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"9"},{"Segment":"Asset","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"7"},{"Segment":"Smart","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"5"},{"Segment":"Basic","status":"pending","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"26"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos 2","Counts":"8"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos 2","Counts":"14"},{"Segment":"NoContract","status":"pending","topic":"Wechselprozesse","subtopic":"Doku & Infos 2","Counts":"2"},{"Segment":"NoContract","status":"pending","topic":"Status","subtopic":"pending_internal ","Counts":"3"},{"Segment":"NoContract","status":"open","topic":"Aktionen","subtopic":"KWK","Counts":"15"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"4"},{"Segment":"Business","status":"pending","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"3"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"8"},{"Segment":"Business","status":"open","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"70"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"6"},{"Segment":"Smart","status":"open","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"6"},{"Segment":"Asset","status":"pending","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Widerruf","subtopic":"Widerruf","Counts":"18"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"13"},{"Segment":"NoContract","status":"open","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"33"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"20"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Vertragsrahmen","subtopic":"Dynamischer Tarif","Counts":"2"},{"Segment":"Asset","status":"pending","topic":"Status","subtopic":"pending_internal ","Counts":"11"},{"Segment":"Asset","status":"open","topic":"Vertragsrahmen","subtopic":"Dynamischer Tarif","Counts":"19"},{"Segment":"Basic","status":"open","topic":"Vertragsrahmen","subtopic":"Dynamischer Tarif","Counts":"19"},{"Segment":"Business","status":"open","topic":"Vertragsrahmen","subtopic":"Dynamischer Tarif","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Vertragsrahmen","subtopic":"Dynamischer Tarif","Counts":"17"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"4"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"5"},{"Segment":"Basic","status":"open","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"219"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"3"},{"Segment":"Asset","status":"open","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"8"},{"Segment":"Asset","status":"open","topic":"Assets","subtopic":"EV (Elektrofahrzeuge)","Counts":"8"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"EV (Elektrofahrzeuge)","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Jahresverbrauchsprognose","Counts":"9"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"Lieferadresse","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Assets","subtopic":"EV (Elektrofahrzeuge)","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"20"},{"Segment":"Smart","status":"open","topic":"App","subtopic":"Feature Request","Counts":"2"},{"Segment":"Business","status":"open","topic":"First-Level Ereignis","subtopic":"First-Level Ereignis","Counts":"2"},{"Segment":"Basic","status":"open","topic":"First-Level Ereignis","subtopic":"First-Level Ereignis","Counts":"10"},{"Segment":"Basic","status":"pending","topic":"Fwd: Invoice","subtopic":"Fwd: Invoice","Counts":"6"},{"Segment":"Asset","status":"open","topic":"App","subtopic":"Geräte-Konnektivität","Counts":"5"},{"Segment":"Smart","status":"open","topic":"Assets","subtopic":"PVAnlage  allgemein (Einspeisung/Integration)","Counts":"8"},{"Segment":"Smart","status":"open","topic":"App","subtopic":"Geräte-Konnektivität","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Assets","subtopic":"Wallbox  allgemein (Anmeldung/Installation/Betrieb)","Counts":"3"},{"Segment":"Asset","status":"open","topic":"Assets","subtopic":"Wärmepumpe  allgemein","Counts":"12"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"Wärmepumpe  allgemein","Counts":"8"},{"Segment":"Smart","status":"open","topic":"Assets","subtopic":"Wärmepumpe  allgemein","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Sales","subtopic":"Gewerbekundenangebot / B2B","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"68"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"5"},{"Segment":"Asset","status":"open","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"13"},{"Segment":"NoContract","status":"open","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"2"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"14"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"7"},{"Segment":"Asset","status":"open","topic":"Aktionen","subtopic":"KR_Check24","Counts":"7"},{"Segment":"Asset","status":"open","topic":"Aktionen","subtopic":"KWK","Counts":"20"},{"Segment":"Smart","status":"open","topic":"Aktionen","subtopic":"KWK","Counts":"21"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Widerruf","subtopic":"Widerruf","Counts":"29"},{"Segment":"Basic","status":"open","topic":"Aktionen","subtopic":"Gutschein/Aktion (zB Waterdrop/Check24/KWK)","Counts":"47"},{"Segment":"Asset","status":"open","topic":"Aktionen","subtopic":"Gutschein/Aktion (zB Waterdrop/Check24/KWK)","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Aktionen","subtopic":"Gutschein/Aktion (zB Waterdrop/Check24/KWK)","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Aktionen","subtopic":"Gutschein/Aktion (zB Waterdrop/Check24/KWK)","Counts":"5"},{"Segment":"Basic","status":"open","topic":"Aktionen","subtopic":"KR_Check24","Counts":"107"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Aktionen","subtopic":"KR_Check24","Counts":"9"},{"Segment":"Smart","status":"open","topic":"Aktionen","subtopic":"KR_Check24","Counts":"9"},{"Segment":"Basic","status":"open","topic":"Aktionen","subtopic":"KR_Trustpilot","Counts":"82"},{"Segment":"Smart","status":"open","topic":"Aktionen","subtopic":"Gutschein/Aktion (zB Waterdrop/Check24/KWK)","Counts":"3"},{"Segment":"Asset","status":"open","topic":"Aktionen","subtopic":"Waterdrop","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Aktionen","subtopic":"Waterdrop","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Aktionen","subtopic":"Waterdrop","Counts":"3"},{"Segment":"Smart","status":"open","topic":"Aktionen","subtopic":"Waterdrop","Counts":"5"},{"Segment":"Business","status":"open","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Mahnverfahren","subtopic":"Inkasso","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Mahnverfahren","subtopic":"Insolvenz","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Fwd: Invoice","subtopic":"Insolvenzverfahren","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Jahresverbrauchsprognose","Counts":"3"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Jahresverbrauchsprognose","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"System-Workflows","subtopic":"Jira Ticket","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Aktionen","subtopic":"KR_Trustpilot","Counts":"12"},{"Segment":"Smart","status":"open","topic":"Aktionen","subtopic":"KR_Trustpilot","Counts":"12"},{"Segment":"NoContract","status":"open","topic":"Aktionen","subtopic":"KR_Check24","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Aktionen","subtopic":"KR_Trustpilot","Counts":"6"},{"Segment":"Business","status":"open","topic":"Aktionen","subtopic":"KWK","Counts":"7"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Aktionen","subtopic":"KWK","Counts":"9"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"53"},{"Segment":"Basic","status":"pending","topic":"Mahnverfahren","subtopic":"Konto nicht gedeckt","Counts":"8"},{"Segment":"Business","status":"open","topic":"Mahnverfahren","subtopic":"Konto nicht gedeckt","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Mahnverfahren","subtopic":"Konto nicht gedeckt","Counts":"4"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Konto nicht gedeckt","Counts":"6"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"6"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"7"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"1"},{"Segment":"Basic","status":"open","topic":"System-Workflows","subtopic":"Kündigung  Winback","Counts":"11"},{"Segment":"NoContract","status":"open","topic":"System-Workflows","subtopic":"Kündigung  Winback","Counts":"1"},{"Segment":"Business","status":"open","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"16"},{"Segment":"NoContract","status":"pending","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"5"},{"Segment":"Business","status":"pending","topic":"Kündigung","subtopic":"Kündigung Kunde","Counts":"4"},{"Segment":"NoContract","status":"open","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"43"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Lieferadresse","Counts":"28"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Lieferadresse","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Lieferadresse","Counts":"2"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Lieferadresse","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Lieferadresse","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Umzug","subtopic":"Umzug","Counts":"13"},{"Segment":"NoContract","status":"open","topic":"Umzug","subtopic":"Umzug","Counts":"12"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Vertragsübernahme (Vertragspartnerwechsel)","Counts":"49"},{"Segment":"Basic","status":"pending","topic":"WL - Neo Energy","subtopic":"WL - Neo Energy","Counts":"12"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Zählerstilllegung","Counts":"7"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"3"},{"Segment":"Asset","status":"open","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"9"},{"Segment":"Business","status":"open","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"2"},{"Segment":"NoContract","status":"pending","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"4"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"43"},{"Segment":"Asset","status":"pending","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"91"},{"Segment":"Basic","status":"pending","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"2"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Login Problem","Counts":"21"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"App","subtopic":"Login Problem","Counts":"2"},{"Segment":"Smart","status":"open","topic":"App","subtopic":"Login Problem","Counts":"6"},{"Segment":"Basic","status":"open","topic":"Mahnverfahren","subtopic":"Mahngebühr","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Mahnverfahren","subtopic":"Mahnkündigung","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnkündigung","Counts":"4"},{"Segment":"Smart","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnkündigung","Counts":"1"},{"Segment":"Asset","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"4"},{"Segment":"Business","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"4"},{"Segment":"Business","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung unklar/fehlerhaft","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"7"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Mahngebühr","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Status","subtopic":"pending_customer","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Sales","subtopic":"Neukundenanfrage","Counts":"3"},{"Segment":"NoContract","status":"open","topic":"Sales","subtopic":"Neukundenanfrage","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"Neukundenanfrage","Counts":"12"},{"Segment":"Asset","status":"open","topic":"Sales","subtopic":"Neukundenanfrage","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Assets","subtopic":"EV (Elektrofahrzeuge)","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Rechnungsfragen","subtopic":"Rabatt","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"Allgemein","Counts":"17"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"Neukundenanfrage","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Portal","subtopic":"PO - Anleitung","Counts":"2"},{"Segment":"Business","status":"open","topic":"Portal","subtopic":"PO - falsche Daten","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Portal","subtopic":"PO - falsche Daten","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Portal","subtopic":"PO - falsche Daten","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Portal","subtopic":"PO - falsche Daten","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Portal","subtopic":"PO - falsche Daten","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"PVAnlage  allgemein (Einspeisung/Integration)","Counts":"10"},{"Segment":"Asset","status":"open","topic":"Assets","subtopic":"PVAnlage  allgemein (Einspeisung/Integration)","Counts":"5"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Zählerstilllegung","Counts":"5"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"36"},{"Segment":"Basic","status":"pending","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"1"},{"Segment":"Business","status":"open","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"3"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Preiserhöhung","Counts":"19"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Preiserhöhung","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Escalation","subtopic":"14a","Counts":"4"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Rabatt","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Rabatt","Counts":"14"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Rabatt","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Rabatt","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"4"},{"Segment":"Asset","status":"pending","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"7"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"21"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"Rechnungsadresse ","Counts":"1"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"11"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"41"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"79"},{"Segment":"NoContract","status":"open","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"5"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"8"},{"Segment":"Asset","status":"pending","topic":"Rechnungsfragen","subtopic":"Preiserhöhung","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Preiserhöhung","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Assets","subtopic":"Steuerbarkeit 14a/SteuVE  allgemein","Counts":"2"},{"Segment":"Asset","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsklärung","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"WL - EVH","subtopic":"WL - EVH","Counts":"1"},{"Segment":"Smart","status":"open","topic":"WL - Neo Energy","subtopic":"WL - Neo Energy","Counts":"3"},{"Segment":"Basic","status":"open","topic":"Fwd: Invoice","subtopic":"Zahlungsaufschub","Counts":"13"},{"Segment":"Smart","status":"pending","topic":"Status","subtopic":"pending_customer","Counts":"2"},{"Segment":"Business","status":"pending","topic":"Status","subtopic":"pending_internal ","Counts":"2"},{"Segment":"Smart","status":"pending","topic":"Fwd: Invoice","subtopic":"Rechnungskorrektur","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"Vertragsverlängerung","Counts":"18"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Schufa / Bonität","Counts":"5"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Schufa / Bonität","Counts":"5"},{"Segment":"Asset","status":"open","topic":"App","subtopic":"Allgemein","Counts":"19"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"App","subtopic":"Allgemein","Counts":"2"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Allgemein","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Sales","subtopic":"Allgemein","Counts":"3"},{"Segment":"NoContract","status":"open","topic":"Sales","subtopic":"Allgemein","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Sales","subtopic":"Allgemein","Counts":"3"},{"Segment":"Business","status":"open","topic":"Stromzähler","subtopic":"Allgemein","Counts":"7"},{"Segment":"Asset","status":"open","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"3"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"9"},{"Segment":"Smart","status":"open","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"4"},{"Segment":"Business","status":"pending","topic":"Stromzähler","subtopic":"Allgemein","Counts":"2"},{"Segment":"Business","status":"open","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"5"},{"Segment":"Basic","status":"pending","topic":"Kündigung","subtopic":"Sonderkündigung","Counts":"1"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Sonderrechnungen","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Sonderrechnungen","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Sonderrechnungen","Counts":"2"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Sonderrechnungen","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"4"},{"Segment":"Asset","status":"open","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"8"},{"Segment":"Basic","status":"pending","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"13"},{"Segment":"Smart","status":"pending","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"4"},{"Segment":"Business","status":"open","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Wechselprozesse","subtopic":"Statusanfrage","Counts":"2"},{"Segment":"Basic","status":"pending","topic":"Wechselprozesse","subtopic":"Doppelabschluss / Doppelbelieferung","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Escalation","subtopic":"14a","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"Steuerbarkeit 14a/SteuVE  allgemein","Counts":"4"},{"Segment":"Basic","status":"open","topic":"Vertragsrahmen","subtopic":"Tarifwechsel","Counts":"18"},{"Segment":"Asset","status":"open","topic":"Vertragsrahmen","subtopic":"Tarifwechsel","Counts":"8"},{"Segment":"Smart","status":"open","topic":"System-Workflows","subtopic":"AutoAnswered","Counts":"14"},{"Segment":"Smart","status":"open","topic":"Vertragsrahmen","subtopic":"Tarifwechsel","Counts":"5"},{"Segment":"Business","status":"open","topic":"App","subtopic":"Technisches Problem","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"App","subtopic":"Technisches Problem","Counts":"5"},{"Segment":"Asset","status":"open","topic":"App","subtopic":"Technisches Problem","Counts":"5"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Technisches Problem","Counts":"7"},{"Segment":"Smart","status":"open","topic":"App","subtopic":"Technisches Problem","Counts":"7"},{"Segment":"Smart","status":"pending","topic":"App","subtopic":"Technisches Problem","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Datenänderung","subtopic":"Telefonnummer","Counts":"5"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Telefonnummer","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Datenänderung","subtopic":"Telefonnummer","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Umzug","subtopic":"Umzug","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Allgemein","subtopic":"Unspezifiziert","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Allgemein","subtopic":"Unspezifiziert","Counts":"2"},{"Segment":"Business","status":"open","topic":"Allgemein","subtopic":"Unspezifiziert","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Allgemein","subtopic":"Unspezifiziert","Counts":"5"},{"Segment":"Basic","status":"open","topic":"Allgemein","subtopic":"Unspezifiziert","Counts":"23"},{"Segment":"NoContract","status":"open","topic":"Allgemein","subtopic":"Unspezifiziert","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Unzustellbare E-Mail","subtopic":"Unzustellbare E-Mail","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Unzustellbare E-Mail","subtopic":"Unzustellbare E-Mail","Counts":"6"},{"Segment":"NoContract","status":"open","topic":"Unzustellbare E-Mail","subtopic":"Unzustellbare E-Mail","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Unzustellbare E-Mail","subtopic":"Unzustellbare E-Mail","Counts":"3"},{"Segment":"Smart","status":"open","topic":"Unzustellbare E-Mail","subtopic":"Unzustellbare E-Mail","Counts":"3"},{"Segment":"Business","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"7"},{"Segment":"Asset","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"6"},{"Segment":"Smart","status":"open","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"5"},{"Segment":"Business","status":"pending","topic":"Vertragsrahmen","subtopic":"Vertragsdokument","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"Vertragsverlängerung","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsänderung","Counts":"2"},{"Segment":"Business","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsänderung","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsänderung","Counts":"5"},{"Segment":"Basic","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsänderung","Counts":"28"},{"Segment":"Smart","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsänderung","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Datenänderung","subtopic":"Vertragsübernahme (Vertragspartnerwechsel)","Counts":"3"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"Vertragsübernahme (Vertragspartnerwechsel)","Counts":"5"},{"Segment":"NoContract","status":"open","topic":"Datenänderung","subtopic":"Vertragsübernahme (Vertragspartnerwechsel)","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Datenänderung","subtopic":"Vertragsübernahme (Vertragspartnerwechsel)","Counts":"8"},{"Segment":"Asset","status":"open","topic":"App","subtopic":"Vertragsübersicht bereinigen","Counts":"2"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Vertragsübersicht bereinigen","Counts":"9"},{"Segment":"Smart","status":"open","topic":"App","subtopic":"Vertragsübersicht bereinigen","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"WL - ImmoScout24 ","subtopic":"WL - ImmoScout24 ","Counts":"3"},{"Segment":"Basic","status":"open","topic":"WL - ImmoScout24 ","subtopic":"WL - ImmoScout24 ","Counts":"7"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"WL - ImmoScout24 ","subtopic":"WL - ImmoScout24 ","Counts":"8"},{"Segment":"NoContract","status":"open","topic":"WL - ImmoScout24 ","subtopic":"WL - ImmoScout24 ","Counts":"2"},{"Segment":"Business","status":"open","topic":"WL - ImmoScout24 ","subtopic":"WL - ImmoScout24 ","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"WL - Neo Energy","subtopic":"WL - Neo Energy","Counts":"11"},{"Segment":"Basic","status":"open","topic":"Autoresponder","subtopic":"Autoresponder","Counts":"2"},{"Segment":"Basic","status":"open","topic":"WL - Perle Energie","subtopic":"WL - Perle Energie","Counts":"9"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"WL - Perle Energie","subtopic":"WL - Perle Energie","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"WL - SunEnergyXT","subtopic":"WL - SunEnergyXT","Counts":"1"},{"Segment":"Business","status":"open","topic":"Assets","subtopic":"Wallbox  allgemein (Anmeldung/Installation/Betrieb)","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Assets","subtopic":"Wallbox  allgemein (Anmeldung/Installation/Betrieb)","Counts":"3"},{"Segment":"Basic","status":"open","topic":"Assets","subtopic":"Wallbox  allgemein (Anmeldung/Installation/Betrieb)","Counts":"1"},{"Segment":"Business","status":"open","topic":"Wechselprozesse","subtopic":"Wechsel abgelehnt (Marktpartner)","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Wechsel abgelehnt (Marktpartner)","Counts":"13"},{"Segment":"NoContract","status":"open","topic":"Wechselprozesse","subtopic":"Wechsel abgelehnt (Marktpartner)","Counts":"3"},{"Segment":"Basic","status":"open","topic":"Wechselprozesse","subtopic":"Wechsel-Invalid-Input","Counts":"1"},{"Segment":"Business","status":"open","topic":"Widerruf","subtopic":"Widerruf","Counts":"6"},{"Segment":"Business","status":"open","topic":"Assets","subtopic":"Wärmepumpe  allgemein","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Assets","subtopic":"Wärmepumpe  allgemein","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Sales","subtopic":"CrossSell / Bundle (PV Wärmepumpe Wallbox)","Counts":"2"},{"Segment":"Smart","status":"open","topic":"Assets","subtopic":"Steuerbarkeit 14a/SteuVE  allgemein","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Fwd: Invoice","subtopic":"Zahlungsaufschub","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"143"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"6"},{"Segment":"Asset","status":"open","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"5"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"5"},{"Segment":"NoContract","status":"open","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"4"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"12"},{"Segment":"Basic","status":"pending","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"4"},{"Segment":"NoContract","status":"pending","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Sales","subtopic":"Vertragsverlängerung","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Fwd: Invoice","subtopic":"Zahlungsaufschub","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"1"},{"Segment":"Business","status":"open","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"1"},{"Segment":"Basic","status":"open","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"19"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Zwischenabrechnung","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"2"},{"Segment":"Basic","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung HT/NT","Counts":"11"},{"Segment":"Asset","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung HT/NT","Counts":"1"},{"Segment":"Asset","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"4"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Zählerstilllegung","Counts":"1"},{"Segment":"Business","status":"open","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"4"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"6"},{"Segment":"NoContract","status":"open","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"2"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Stromzähler","subtopic":"Zählerverwechslung","Counts":"14"},{"Segment":"Business","status":"open","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"37"},{"Segment":"Smart","status":"open","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"8"},{"Segment":"Basic","status":"pending","topic":"[GETEC-SERVICE]","subtopic":"[GETEC-SERVICE]","Counts":"1"},{"Segment":"Asset","status":"pending","topic":"Status","subtopic":"pending_customer","Counts":"2"},{"Segment":"Asset","status":"pending","topic":"Status","subtopic":"Status","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Fwd: Invoice","subtopic":"Zahlungsaufschub","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Fwd: Invoice","subtopic":"Zahlungsaufschub","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Status","subtopic":"pending_internal ","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Status","subtopic":"pending_internal ","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"System-Workflows","subtopic":"AutoAnswered","Counts":"3"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"System-Workflows","subtopic":"AutoAnswered","Counts":"3"},{"Segment":"Smart","status":"open","topic":"Status","subtopic":"pending_internal ","Counts":"5"},{"Segment":"Asset","status":"pending","topic":"System-Workflows","subtopic":"Jira Ticket","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Rabatt","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Fwd: Invoice","subtopic":"Rechnungskorrektur","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Rechnungsfragen","subtopic":"Rechnungsfragen","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"WL - SunEnergyXT","subtopic":"WL - SunEnergyXT","Counts":"1"},{"Segment":"Asset","status":"pending","topic":"Stromzähler","subtopic":"Zählertausch","Counts":"2"},{"Segment":"Smart","status":"pending","topic":"Escalation","subtopic":"14a","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Aktionen","subtopic":"Aktionen","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"2"},{"Segment":"Business","status":"open","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Portal","subtopic":"PO - Anleitung","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"pending","topic":"Datenänderung","subtopic":"Bankdaten","Counts":"1"},{"Segment":"Basic","status":"open","topic":"System-Workflows","subtopic":"Bundling","Counts":"14"},{"Segment":"Smart","status":"open","topic":"Clearing","subtopic":"Clearing","Counts":"2"},{"Segment":"Smart","status":"open","topic":"System-Workflows","subtopic":"Bundling","Counts":"2"},{"Segment":"NoContract","status":"pending","topic":"Umzug","subtopic":"Umzug","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"1"},{"Segment":"Basic","status":"open","topic":"System-Workflows","subtopic":"Duplikate","Counts":"2"},{"Segment":"Asset","status":"open","topic":"Datenänderung","subtopic":"E-Mailadresse","Counts":"4"},{"Segment":"NoContract","status":"open","topic":"Vertragsrahmen","subtopic":"Tarifwechsel","Counts":"1"},{"Segment":"Basic","status":"open","topic":"App","subtopic":"Feature Request","Counts":"5"},{"Segment":"NoContract","status":"open","topic":"First-Level Ereignis","subtopic":"First-Level Ereignis","Counts":"3"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Jahresverbrauchsprognose","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Guthaben","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Kündigung","subtopic":"Kündigung","Counts":"1"},{"Segment":"Asset","status":"pending","topic":"Wechselprozesse","subtopic":"Grundversorgung / Übergangsversorgung","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"2"},{"Segment":"Asset","status":"pending","topic":"Vertragsrahmen","subtopic":"Lieferbeginn","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Mahnverfahren","subtopic":"Mahnkündigung","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"1"},{"Segment":"Asset","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Mahnverfahren","subtopic":"Mahnung","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Portal","subtopic":"PO - falsche Daten","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Partnersupport","subtopic":"Partnersupport","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Escalation","subtopic":"Schlichtungsstelle","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"Sales","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"Allgemein","Counts":"2"},{"Segment":"Business","status":"open","topic":"Sonder-Tag","subtopic":"Sonder-Tag","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Rechnungsfragen","subtopic":"Sonderrechnungen","Counts":"2"},{"Segment":"NoContract","status":"open","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Stromzähler","subtopic":"Stromzähler","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Vertragsrahmen","subtopic":"Vertragsrahmen","Counts":"3"},{"Segment":"Smart","status":"pending","topic":"Datenänderung","subtopic":"Kundenkontowechsel","Counts":"1"},{"Segment":"Business","status":"open","topic":"Sales","subtopic":"Vertragsverlängerung","Counts":"1"},{"Segment":"Asset","status":"open","topic":"Sales","subtopic":"Vertragsverlängerung","Counts":"1"},{"Segment":"Business","status":"open","topic":"Datenänderung","subtopic":"Vertragsübernahme (Vertragspartnerwechsel)","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"WL - ImmoScout24 ","subtopic":"WL - ImmoScout24 ","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Wechselprozesse","subtopic":"Schufa / Bonität","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Wechselprozesse","subtopic":"Wechselprozesse","Counts":"2"},{"Segment":"NoContract","status":"pending","topic":"Widerruf","subtopic":"Widerruf","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Sales","subtopic":"CrossSell / Bundle (PV Wärmepumpe Wallbox)","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"Anpassung Zahlungsmodalitäten","Counts":"1"},{"Segment":"NoContract","status":"open","topic":"Stromzähler","subtopic":"Zählerstandskorrektur","Counts":"6"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Status","subtopic":"pending_customer","Counts":"1"},{"Segment":"Smart","status":"open","topic":"Escalation","subtopic":"Schlichtungsstelle","Counts":"2"},{"Segment":"Smart","status":"pending","topic":"Allgemein","subtopic":"Allgemein","Counts":"3"},{"Segment":"Smart","status":"pending","topic":"Sales","subtopic":"Angebotsanfrage / Preisangebot","Counts":"1"},{"Segment":"Asset","status":"open","topic":"System-Workflows","subtopic":"Bundling","Counts":"1"},{"Segment":"NoContract","status":"pending","topic":"First-Level Ereignis","subtopic":"First-Level Ereignis","Counts":"1"},{"Segment":"Business","status":"pending","topic":"Stromzähler","subtopic":"Zählerstandsübermittlung","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Datenänderung","subtopic":"Telefonnummer","Counts":"1"},{"Segment":"NotFoundInEnneo (DSGVO)","status":"open","topic":"Wechselprozesse","subtopic":"Doku & Infos","Counts":"1"},{"Segment":"Business","status":"open","topic":"Mahnverfahren","subtopic":"Insolvenz","Counts":"1"},{"Segment":"Asset","status":"open","topic":"App","subtopic":"Login Problem","Counts":"1"},{"Segment":"Basic","status":"pending","topic":"Escalation","subtopic":"Schlichtungsstelle","Counts":"1"},{"Segment":"Smart","status":"pending","topic":"Rechnungsfragen","subtopic":"Zahlungsklärung","Counts":"1"}];
 
+const SEG_ORDER = ['Basic','Smart','Asset','Business','NoContract','NotFoundInEnneo (DSGVO)'];
 const SEG_COLORS = {
-  'Asset': '#f472b6',
-  'Basic': '#60a5fa',
-  'Business': '#818cf8',
-  'NoContract': '#fb923c',
-  'NotFoundInEnneo (DSGVO)': '#a78bfa',
-  'Smart': '#34d399',
+  'Basic':                   '#6b9fd4',
+  'Smart':                   '#5bbf8a',
+  'Asset':                   '#e07b5a',
+  'Business':                '#9b7de0',
+  'NoContract':              '#e0b85a',
+  'NotFoundInEnneo (DSGVO)': '#5ab8d4',
 };
 
-let currentStatus = 'all';
-let selectedSegs = new Set(); // empty = all visible
+const UPLOAD_PASSWORD = 'rabot2026';
+let currentStatus = 'open';
+let selectedSegs = new Set();
 let DATA = RAW;
 
 function setStatus(s, btn) {
@@ -310,22 +351,13 @@ function toggleSeg(seg) {
   render();
 }
 
-function clearSegs() {
-  selectedSegs.clear();
-  render();
-}
-
-const UPLOAD_PASSWORD = 'rabot2026';
+function clearSegs() { selectedSegs.clear(); render(); }
 
 function loadJSON(event) {
   const file = event.target.files[0];
   if (!file) return;
   const pwd = prompt('Enter password to update data:');
-  if (pwd !== UPLOAD_PASSWORD) {
-    alert('Incorrect password.');
-    event.target.value = '';
-    return;
-  }
+  if (pwd !== UPLOAD_PASSWORD) { alert('Incorrect password.'); event.target.value = ''; return; }
   const reader = new FileReader();
   reader.onload = e => {
     try {
@@ -333,15 +365,23 @@ function loadJSON(event) {
       selectedSegs.clear();
       document.getElementById('searchInput').value = '';
       render();
-      const toast = document.getElementById('uploadToast');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
-    } catch(err) {
-      alert('Invalid JSON file: ' + err.message);
-    }
+      document.getElementById('downloadBtn').style.display = 'flex';
+      const t = document.getElementById('uploadToast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    } catch(err) { alert('Invalid JSON: ' + err.message); }
   };
   reader.readAsText(file);
   event.target.value = '';
+}
+
+function downloadUpdatedHTML() {
+  const src = document.documentElement.outerHTML;
+  const out = src.replace(/const RAW = \[.*?\];/s, 'const RAW = ' + JSON.stringify(DATA) + ';');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([out], {type:'text/html'}));
+  a.download = 'index.html'; a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function getFiltered() {
@@ -359,124 +399,108 @@ function buildSegmentData(data) {
   data.forEach(d => {
     if (!segs[d.Segment]) segs[d.Segment] = {};
     if (!segs[d.Segment][d.topic]) segs[d.Segment][d.topic] = {};
-    const key = d.subtopic;
-    if (!segs[d.Segment][d.topic][key]) segs[d.Segment][d.topic][key] = {open:0, pending:0};
-    segs[d.Segment][d.topic][key][d.status] += parseInt(d.Counts);
+    if (!segs[d.Segment][d.topic][d.subtopic]) segs[d.Segment][d.topic][d.subtopic] = {open:0,pending:0};
+    segs[d.Segment][d.topic][d.subtopic][d.status] += parseInt(d.Counts);
   });
   return segs;
 }
 
-function totalFor(topicObj) {
-  let o=0, p=0;
-  Object.values(topicObj).forEach(st => { o += st.open||0; p += st.pending||0; });
-  return {open:o, pending:p, total:o+p};
+function totalFor(obj) {
+  let o=0,p=0;
+  Object.values(obj).forEach(s => { o+=s.open||0; p+=s.pending||0; });
+  return {open:o,pending:p,total:o+p};
+}
+
+function toggleTopic(id, row) {
+  document.getElementById(id).classList.toggle('open');
+  row.classList.toggle('expanded');
 }
 
 function render() {
   const data = getFiltered();
   const segData = buildSegmentData(data);
 
-  // Update stats
   const totalOpen = data.filter(d=>d.status==='open').reduce((a,d)=>a+parseInt(d.Counts),0);
   const totalPending = data.filter(d=>d.status==='pending').reduce((a,d)=>a+parseInt(d.Counts),0);
   document.getElementById('statsRow').innerHTML = `
     <div class="stat-chip"><strong>${(totalOpen+totalPending).toLocaleString('de')}</strong> Gesamt</div>
-    <div class="stat-chip" style="border-color:rgba(0,201,122,.3)"><strong style="color:var(--green)">${totalOpen.toLocaleString('de')}</strong> Open</div>
-    <div class="stat-chip" style="border-color:rgba(245,158,11,.3)"><strong style="color:var(--amber)">${totalPending.toLocaleString('de')}</strong> Pending</div>
+    <div class="stat-chip"><strong>${totalOpen.toLocaleString('de')}</strong> Open</div>
+    <div class="stat-chip"><strong style="color:var(--muted)">${totalPending.toLocaleString('de')}</strong> Pending</div>
   `;
 
-  // Update seg tabs — multi-select, counts based on full DATA (no status/search filter)
-  const allSegs = [...new Set(DATA.map(d=>d.Segment))].sort();
+  const allSegsInData = [...new Set(DATA.map(d=>d.Segment))];
+  const orderedSegs = [...SEG_ORDER.filter(s=>allSegsInData.includes(s)),
+                       ...allSegsInData.filter(s=>!SEG_ORDER.includes(s)).sort()];
+
   const tabsEl = document.getElementById('segTabs');
-  tabsEl.innerHTML = allSegs.map((s, i) => {
-    const color = SEG_COLORS[s] || '#888';
-    const cnt = DATA.filter(d => d.Segment === s && (currentStatus === 'all' || d.status === currentStatus))
+  tabsEl.innerHTML = orderedSegs.map((s,i) => {
+    const color = SEG_COLORS[s]||'#888';
+    const cnt = DATA.filter(d=>d.Segment===s&&(currentStatus==='all'||d.status===currentStatus))
                     .reduce((a,d)=>a+parseInt(d.Counts),0);
-    const isActive = selectedSegs.has(s);
-    return `<button class="seg-tab ${isActive?'active':''}" 
-      style="--seg-color:${color}" 
-      data-seg-index="${i}">
-      <span class="seg-dot" style="background:${color}"></span>
-      ${s}<span class="seg-count">${cnt.toLocaleString('de')}</span>
+    return `<button class="seg-tab ${selectedSegs.has(s)?'active':''}" style="--seg-color:${color}" data-i="${i}">
+      <span class="seg-dot" style="background:${color}"></span>${s}<span class="seg-count">${cnt.toLocaleString('de')}</span>
     </button>`;
   }).join('');
+  tabsEl.querySelectorAll('.seg-tab').forEach((btn,i) => btn.addEventListener('click', ()=>toggleSeg(orderedSegs[i])));
 
-  // Attach click handlers after rendering (avoids inline onclick escaping issues)
-  tabsEl.querySelectorAll('.seg-tab').forEach((btn, i) => {
-    btn.addEventListener('click', () => toggleSeg(allSegs[i]));
-  });
-
-  // Render cards
   const grid = document.getElementById('grid');
-  if (Object.keys(segData).length === 0) {
+  if (!Object.keys(segData).length) {
     grid.innerHTML = '<div class="no-results">No tickets match the current filters.</div>';
     return;
   }
 
-  grid.innerHTML = Object.entries(segData).sort((a,b)=>a[0].localeCompare(b[0])).map(([seg, topics]) => {
-    const color = SEG_COLORS[seg] || '#888';
-    const segTotals = Object.values(topics).reduce((acc,t)=>{
-      const tot = totalFor(t); acc.open+=tot.open; acc.pending+=tot.pending; return acc;
-    },{open:0,pending:0});
+  const sorted = [...SEG_ORDER.filter(s=>segData[s]).map(s=>[s,segData[s]]),
+                  ...Object.entries(segData).filter(([s])=>!SEG_ORDER.includes(s)).sort()];
 
-    const topicRows = Object.entries(topics)
-      .sort((a,b) => totalFor(b[1]).total - totalFor(a[1]).total)
-      .map(([topic, subtopics]) => {
-        const tt = totalFor(subtopics);
-        const subRows = Object.entries(subtopics)
-          .sort((a,b) => (b[1].open+b[1].pending)-(a[1].open+a[1].pending))
-          .map(([sub, counts]) => {
-            const tot = (counts.open||0)+(counts.pending||0);
-            const pills = [];
-            if (currentStatus !== 'pending' && counts.open) pills.push(`<span class="pill pill-open">${counts.open}</span>`);
-            if (currentStatus !== 'open' && counts.pending) pills.push(`<span class="pill pill-pending">${counts.pending}</span>`);
-            return `<div class="subtopic-row">
-              <span class="subtopic-name">${sub}</span>
-              <div class="subtopic-pills">${pills.join('')}<span class="pill pill-total">${tot}</span></div>
-            </div>`;
+  grid.innerHTML = sorted.map(([seg,topics]) => {
+    const color = SEG_COLORS[seg]||'#888';
+    const totals = Object.values(topics).reduce((acc,t)=>{const x=totalFor(t);acc.open+=x.open;acc.pending+=x.pending;return acc;},{open:0,pending:0});
+
+    const rows = Object.entries(topics)
+      .sort((a,b)=>totalFor(b[1]).total-totalFor(a[1]).total)
+      .map(([topic,subs]) => {
+        const tt = totalFor(subs);
+        const subRows = Object.entries(subs)
+          .sort((a,b)=>(b[1].open+b[1].pending)-(a[1].open+a[1].pending))
+          .map(([sub,c]) => {
+            const tot=(c.open||0)+(c.pending||0);
+            const p=[];
+            if(currentStatus!=='pending'&&c.open) p.push(`<span class="pill pill-open">${c.open}</span>`);
+            if(currentStatus!=='open'&&c.pending) p.push(`<span class="pill pill-pending">${c.pending}</span>`);
+            return `<div class="subtopic-row"><span class="subtopic-name">${sub}</span><div class="subtopic-pills">${p.join('')}<span class="pill pill-total">${tot}</span></div></div>`;
           }).join('');
 
-        const tpills = [];
-        if (currentStatus !== 'pending' && tt.open) tpills.push(`<span class="pill pill-open">${tt.open}</span>`);
-        if (currentStatus !== 'open' && tt.pending) tpills.push(`<span class="pill pill-pending">${tt.pending}</span>`);
-        tpills.push(`<span class="pill pill-total">${tt.total}</span>`);
+        const tp=[];
+        if(currentStatus!=='pending'&&tt.open) tp.push(`<span class="pill pill-open">${tt.open}</span>`);
+        if(currentStatus!=='open'&&tt.pending) tp.push(`<span class="pill pill-pending">${tt.pending}</span>`);
+        tp.push(`<span class="pill pill-total">${tt.total}</span>`);
 
-        const tid = `t_${seg}_${topic}`.replace(/[^a-zA-Z0-9_]/g,'_');
-        return `
-          <div class="topic-row" onclick="toggleTopic('${tid}',this)">
-            <div class="topic-left"><span class="topic-name">${topic}</span></div>
-            <div class="topic-right">${tpills.join('')}<span class="chevron">▶</span></div>
-          </div>
-          <div class="subtopic-list" id="${tid}">${subRows}</div>
-        `;
+        const tid='t'+Math.random().toString(36).slice(2,10);
+        return `<div class="topic-row" onclick="toggleTopic('${tid}',this)">
+          <span class="topic-name">${topic}</span>
+          <div class="topic-right">${tp.join('')}<span class="chevron">▶</span></div>
+        </div>
+        <div class="subtopic-list" id="${tid}">${subRows}</div>`;
       }).join('');
 
-    return `
-      <div class="seg-card">
-        <div class="seg-card-header">
-          <div class="seg-name">
-            <span class="seg-dot" style="background:${color}"></span>
-            ${seg}
-          </div>
-          <div>
-            <div class="seg-total">${(segTotals.open+segTotals.pending).toLocaleString('de')}</div>
-            <div class="seg-sub">
-              ${currentStatus!=='pending'?`<span style="color:var(--green)">${segTotals.open} open</span>`:''}
-              ${currentStatus==='all'?' · ':''}
-              ${currentStatus!=='open'?`<span style="color:var(--amber)">${segTotals.pending} pending</span>`:''}
-            </div>
+    return `<div class="seg-card">
+      <div class="seg-card-header" style="--seg-color:${color}">
+        <div class="seg-name">
+          <span style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block;"></span>
+          <span class="seg-name-text">${seg}</span>
+        </div>
+        <div class="seg-numbers">
+          <div class="seg-total-num">${(totals.open+totals.pending).toLocaleString('de')}</div>
+          <div class="seg-breakdown">
+            ${currentStatus!=='pending'?`<span>${totals.open.toLocaleString('de')} open</span>`:''}
+            ${currentStatus==='all'?'<span style="color:var(--muted2)">·</span>':''}
+            ${currentStatus!=='open'?`<span style="color:var(--muted2)">${totals.pending.toLocaleString('de')} pend</span>`:''}
           </div>
         </div>
-        <div class="topic-list">${topicRows}</div>
       </div>
-    `;
+      <div class="topic-list">${rows}</div>
+    </div>`;
   }).join('');
-}
-
-function toggleTopic(id, row) {
-  const list = document.getElementById(id);
-  list.classList.toggle('open');
-  row.classList.toggle('expanded');
 }
 
 render();
