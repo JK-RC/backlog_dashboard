@@ -271,9 +271,6 @@
     ↑ Update JSON
     <input type="file" id="fileInput" accept=".json" onchange="loadJSON(event)">
   </label>
-  <button class="upload-btn" id="downloadBtn" onclick="downloadUpdatedHTML()" style="display:none; border-color:#00c97a; color:#00c97a;">
-    ↓ Download updated file
-  </button>
 </div>
 
 <div class="seg-section">
@@ -336,7 +333,6 @@ function loadJSON(event) {
       selectedSegs.clear();
       document.getElementById('searchInput').value = '';
       render();
-      document.getElementById('downloadBtn').style.display = 'flex';
       const toast = document.getElementById('uploadToast');
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2500);
@@ -475,20 +471,6 @@ function render() {
       </div>
     `;
   }).join('');
-}
-
-function downloadUpdatedHTML() {
-  const source = document.documentElement.outerHTML;
-  const newSource = source.replace(
-    /const RAW = \[.*?\];/s,
-    'const RAW = ' + JSON.stringify(DATA) + ';'
-  );
-  const blob = new Blob([newSource], { type: 'text/html' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'index.html';
-  a.click();
-  URL.revokeObjectURL(a.href);
 }
 
 function toggleTopic(id, row) {
