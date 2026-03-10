@@ -287,6 +287,8 @@
     <span class="brand-title">Ticket Backlog</span>
     <div class="brand-divider"></div>
     <span class="brand-sub">Rabot Energy</span>
+    <div class="brand-divider"></div>
+    <span class="brand-sub" id="genDate" style="color:var(--muted2)"></span>
   </div>
   <div class="stats-row" id="statsRow"></div>
 </div>
@@ -338,6 +340,8 @@ let currentStatus = 'open';
 let selectedSegs = new Set();
 let DATA = RAW;
 
+const GENERATED_DATE = '10.03.2026';
+
 function setStatus(s, btn) {
   currentStatus = s;
   document.querySelectorAll('.btn-filter').forEach(b => b.className = 'btn-filter');
@@ -376,8 +380,13 @@ function loadJSON(event) {
 }
 
 function downloadUpdatedHTML() {
+  const pwd = prompt('Enter password to download:');
+  if (pwd !== UPLOAD_PASSWORD) { alert('Incorrect password.'); return; }
+  const today = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
   const src = document.documentElement.outerHTML;
-  const out = src.replace(/const RAW = \[.*?\];/s, 'const RAW = ' + JSON.stringify(DATA) + ';');
+  const out = src
+    .replace(/const RAW = \[.*?\];/s, 'const RAW = ' + JSON.stringify(DATA) + ';')
+    .replace(/const GENERATED_DATE = '.*?';/, "const GENERATED_DATE = '" + today + "';");
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([out], {type:'text/html'}));
   a.download = 'index.html'; a.click();
@@ -504,6 +513,7 @@ function render() {
 }
 
 render();
+document.getElementById('genDate').textContent = 'Generated ' + GENERATED_DATE;
 </script>
 </body>
 </html>
